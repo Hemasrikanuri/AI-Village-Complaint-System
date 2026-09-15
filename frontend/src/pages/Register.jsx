@@ -15,6 +15,7 @@ const Register = () => {
   const [pendingVillage, setPendingVillage] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
   const [villages, setVillages] = useState([]);
+  const [loadingVillages, setLoadingVillages] = useState(true);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
@@ -25,15 +26,14 @@ const Register = () => {
   }, []);
 
   const fetchVillages = async () => {
+    setLoadingVillages(true);
     try {
       const res = await api.get('/villages');
       setVillages(res.data);
-      if (res.data.length > 0) {
-        setVillageId(res.data[0].id);
-        setSearchQuery(`${res.data[0].name} (${res.data[0].district})`);
-      }
     } catch (err) {
-      console.error('Failed to load villages');
+      console.error('Failed to load villages', err);
+    } finally {
+      setLoadingVillages(false);
     }
   };
 
@@ -173,7 +173,11 @@ const Register = () => {
               />
               {showDropdown && (
                 <div className="absolute left-0 right-0 mt-1 max-h-48 overflow-y-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg z-50 p-1">
-                  {filteredVillages.length > 0 ? (
+                  {loadingVillages ? (
+                    <div className="px-3 py-3 text-xs text-slate-500 text-center animate-pulse flex items-center justify-center gap-2">
+                      <span>⏳ Loading villages from server...</span>
+                    </div>
+                  ) : filteredVillages.length > 0 ? (
                     filteredVillages.map((v) => (
                       <button
                         key={v.id}
@@ -191,7 +195,9 @@ const Register = () => {
                       </button>
                     ))
                   ) : (
-                    <div className="px-3 py-2 text-xs text-slate-400">No matching villages found</div>
+                    <div className="px-3 py-2 text-xs text-slate-400 text-center">
+                      No matching villages found
+                    </div>
                   )}
 
                   <button
