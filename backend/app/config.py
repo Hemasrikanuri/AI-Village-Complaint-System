@@ -15,7 +15,9 @@ class Settings(BaseSettings):
     
     @property
     def DATABASE_URL(self) -> str:
-        url = self._raw_db_url
+        url = os.getenv("DATABASE_URL", "")
+        if not url:
+            return "sqlite:///./gramsetu.db"
         if url.startswith("postgres://"):
             url = url.replace("postgres://", "postgresql://", 1)
         return url
