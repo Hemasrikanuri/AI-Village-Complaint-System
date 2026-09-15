@@ -1,9 +1,12 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+let rawBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+if (rawBaseUrl && !rawBaseUrl.startsWith('http://') && !rawBaseUrl.startsWith('https://') && !rawBaseUrl.startsWith('/')) {
+  rawBaseUrl = `https://${rawBaseUrl}/api/v1`;
+}
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: rawBaseUrl,
 });
 
 // Inject JWT token into requests automatically

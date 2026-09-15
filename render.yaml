@@ -26,7 +26,6 @@ services:
   - type: web
     name: gramsetu-frontend
     env: static
-    region: singapore
     plan: free
     rootDir: frontend
     buildCommand: npm install && npm run build
@@ -40,8 +39,7 @@ services:
         fromService:
           type: web
           name: gramsetu-backend
-          property: url
-          suffix: /api/v1
+          property: host
 
 databases:
   # Managed PostgreSQL Database
