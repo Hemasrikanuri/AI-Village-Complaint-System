@@ -50,5 +50,5 @@ alembic upgrade head
 echo "Populating Seed Data..."
 python seed.py
 
-echo "Starting Uvicorn Server on 0.0.0.0:8000..."
-exec uvicorn app.main:app --host 0.0.0.0 --port 8000
+echo "Starting Uvicorn Server on 0.0.0.0:${PORT:-8000}..."
+exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
