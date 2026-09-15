@@ -1,12 +1,17 @@
 #!/bin/sh
 set -e
 
+# Ensure virtual environment binaries take precedence on Render / Linux servers
+if [ -d "/opt/render/project/src/.venv/bin" ]; then
+    export PATH="/opt/render/project/src/.venv/bin:$PATH"
+fi
+
 echo "=================================================="
 echo "GramSetu Backend Startup - Waiting for Database..."
 echo "=================================================="
 
 # DB Readiness Wait Script in Python
-python3 - << 'EOF'
+python - << 'EOF'
 import sys
 import time
 import psycopg2
@@ -45,10 +50,11 @@ sys.exit(1)
 EOF
 
 echo "Running Alembic Database Migrations..."
-alembic upgrade head
+python -m alembic upgrade head
 
 echo "Populating Seed Data..."
 python seed.py
 
-echo "Starting Uvicorn Server on 0.0.0.0:${PORT:-8000}..."
-exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
+PORT_TO_USE="${PORT:-8000}"
+echo "Starting Uvicorn Server on 0.0.0.0:${PORT_TO_USE}..."
+exec python -m uvicorn app.main:app --host 0.0.0.0 --port "${PORT_TO_USE}"
