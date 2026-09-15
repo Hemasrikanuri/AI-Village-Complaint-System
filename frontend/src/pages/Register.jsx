@@ -54,25 +54,54 @@ const Register = () => {
     e.preventDefault();
     setError('');
     
+    let targetVillageId = villageId;
+    
+    // Auto-resolve typed village query to villageId if not selected via click
+    if (!isCustomVillage && !targetVillageId && searchQuery.trim()) {
+      const match = villages.find(v => 
+        v.name.toLowerCase() === searchQuery.trim().toLowerCase() ||
+        `${v.name} (${v.district})`.toLowerCase() === searchQuery.trim().toLowerCase()
+      );
+      if (match) {
+        targetVillageId = match.id;
+      }
+    }
+
     if (isCustomVillage && !pendingVillage.trim()) {
-      setError('Please type your village name.');
+      setError('Please type your unlisted village name.');
+      return;
+    }
+
+    if (!isCustomVillage && !targetVillageId) {
+      setError('Please select your village from the list, or select "My village isn\'t listed".');
       return;
     }
 
     setLoading(true);
     try {
       await register({
-        name,
-        email,
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
         password,
-        mobile,
-        village_id: isCustomVillage ? null : (villageId ? parseInt(villageId) : null),
+        mobile: mobile.trim(),
+        village_id: isCustomVillage ? null : parseInt(targetVillageId),
         pending_village_name: isCustomVillage ? pendingVillage.trim() : null,
         role: 'CITIZEN'
       });
       navigate('/login');
     } catch (err) {
-      setError(err.response?.data?.detail || 'Registration failed.');
+      console.error('Registration error:', err);
+      let msg = 'Registration failed. Please check your connection and try again.';
+      if (err.response?.data?.detail) {
+        if (typeof err.response.data.detail === 'string') {
+          msg = err.response.data.detail;
+        } else if (Array.isArray(err.response.data.detail)) {
+          msg = err.response.data.detail.map(item => item.msg || item.message).join(', ');
+        }
+      } else if (err.message) {
+        msg = err.message;
+      }
+      setError(msg);
     } finally {
       setLoading(false);
     }
