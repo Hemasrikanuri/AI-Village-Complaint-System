@@ -13,6 +13,13 @@ class Settings(BaseSettings):
         "postgresql://gramsetu_user:gramsetu_secure_pass_2026@db:5432/gramsetu_db"
     )
     
+    @property
+    def get_database_url(self) -> str:
+        url = self.DATABASE_URL
+        if url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql://", 1)
+        return url
+    
     SECRET_KEY: str = os.getenv("SECRET_KEY", "gramsetu_super_secret_jwt_key_987654321_2026")
     ALGORITHM: str = os.getenv("ALGORITHM", "HS256")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "1440"))

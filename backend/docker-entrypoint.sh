@@ -12,6 +12,10 @@ import time
 import psycopg2
 import os
 
+db_url = os.getenv("DATABASE_URL")
+if db_url and db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
 host = os.getenv("POSTGRES_HOST", "db")
 port = os.getenv("POSTGRES_PORT", "5432")
 user = os.getenv("POSTGRES_USER", "gramsetu_user")
@@ -23,9 +27,12 @@ retry_interval = 2
 
 for attempt in range(1, max_retries + 1):
     try:
-        conn = psycopg2.connect(
-            host=host, port=port, user=user, password=password, dbname=dbname
-        )
+        if db_url:
+            conn = psycopg2.connect(db_url)
+        else:
+            conn = psycopg2.connect(
+                host=host, port=port, user=user, password=password, dbname=dbname
+            )
         conn.close()
         print(f"Database is ready and accepting connections! (Attempt {attempt})")
         sys.exit(0)
