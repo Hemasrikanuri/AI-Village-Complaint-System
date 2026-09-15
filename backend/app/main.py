@@ -38,6 +38,34 @@ app.include_router(admin.router, prefix="/api/v1")
 app.include_router(notifications.router, prefix="/api/v1")
 app.include_router(reports.router, prefix="/api/v1")
 
+@app.on_event("startup")
+def startup_db_init():
+    print("Initializing database tables and seed data...")
+    # 1. Run Alembic migrations
+    try:
+        from alembic.config import Config
+        from alembic import command
+        alembic_cfg = Config("alembic.ini")
+        command.upgrade(alembic_cfg, "head")
+        print("Alembic migrations applied successfully.")
+    except Exception as e:
+        print(f"Alembic migration warning/skip: {e}")
+        try:
+            from app.database import engine, Base
+            import app.models  # noqa
+            Base.metadata.create_all(bind=engine)
+            print("Fallback Base.metadata.create_all executed.")
+        except Exception as ex:
+            print(f"Fallback create_all error: {ex}")
+
+    # 2. Run database seed
+    try:
+        from seed import seed_database
+        seed_database()
+        print("Database seeding completed.")
+    except Exception as e:
+        print(f"Database seed warning/skip: {e}")
+
 @app.get("/health")
 def health_check():
     return {"status": "healthy", "service": "GramSetu Backend API"}
