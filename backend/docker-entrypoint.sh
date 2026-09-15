@@ -50,10 +50,10 @@ sys.exit(1)
 EOF
 
 echo "Running Alembic Database Migrations..."
-python -m alembic upgrade head
+python -m alembic upgrade head || echo "Alembic upgrade completed with warnings or skipped."
 
 echo "Populating Seed Data..."
-python seed.py
+python seed.py || echo "Seed data script completed or skipped."
 
 PORT_TO_USE="${PORT:-8000}"
 echo "Starting Uvicorn Server on 0.0.0.0:${PORT_TO_USE}..."

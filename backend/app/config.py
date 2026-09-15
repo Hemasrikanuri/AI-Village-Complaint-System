@@ -8,17 +8,21 @@ class Settings(BaseSettings):
     POSTGRES_HOST: str = os.getenv("POSTGRES_HOST", "db")
     POSTGRES_PORT: str = os.getenv("POSTGRES_PORT", "5432")
     
-    DATABASE_URL: str = os.getenv(
+    _raw_db_url: str = os.getenv(
         "DATABASE_URL", 
         "postgresql://gramsetu_user:gramsetu_secure_pass_2026@db:5432/gramsetu_db"
     )
     
     @property
-    def get_database_url(self) -> str:
-        url = self.DATABASE_URL
+    def DATABASE_URL(self) -> str:
+        url = self._raw_db_url
         if url.startswith("postgres://"):
             url = url.replace("postgres://", "postgresql://", 1)
         return url
+
+    @property
+    def get_database_url(self) -> str:
+        return self.DATABASE_URL
     
     SECRET_KEY: str = os.getenv("SECRET_KEY", "gramsetu_super_secret_jwt_key_987654321_2026")
     ALGORITHM: str = os.getenv("ALGORITHM", "HS256")
