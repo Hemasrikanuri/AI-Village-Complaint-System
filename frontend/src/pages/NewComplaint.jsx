@@ -67,10 +67,18 @@ const NewComplaint = () => {
     }
   };
 
-  const filteredVillages = villages.filter(v =>
-    v.name.toLowerCase().includes(villageSearch.toLowerCase()) ||
-    v.district.toLowerCase().includes(villageSearch.toLowerCase())
-  );
+  const selectedVillage = villages.find(v => String(v.id) === String(villageId));
+  const selectedDisplayStr = selectedVillage ? `${selectedVillage.name} (${selectedVillage.district})` : '';
+
+  const filteredVillages = villages.filter(v => {
+    if (!villageSearch || villageSearch === selectedDisplayStr) return true;
+    const q = villageSearch.toLowerCase();
+    return (
+      v.name.toLowerCase().includes(q) ||
+      v.district.toLowerCase().includes(q) ||
+      (v.state && v.state.toLowerCase().includes(q))
+    );
+  });
 
   const handleDetectLocation = () => {
     if (!navigator.geolocation) {
