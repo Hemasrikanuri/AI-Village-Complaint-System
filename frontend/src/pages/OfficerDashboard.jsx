@@ -25,6 +25,11 @@ const OfficerDashboard = () => {
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [showEscalateModal, setShowEscalateModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+
+  // Meta data for officer profile mapping
+  const [villages, setVillages] = useState([]);
+  const [departments, setDepartments] = useState([]);
 
   // Form states
   const [newStatus, setNewStatus] = useState('IN_PROGRESS');
@@ -40,7 +45,21 @@ const OfficerDashboard = () => {
 
   useEffect(() => {
     fetchOfficerWorkQueue();
+    fetchMeta();
   }, [priorityFilter, statusFilter]);
+
+  const fetchMeta = async () => {
+    try {
+      const [vRes, dRes] = await Promise.all([
+        api.get('/villages'),
+        api.get('/departments')
+      ]);
+      setVillages(vRes.data);
+      setDepartments(dRes.data);
+    } catch (err) {
+      console.warn('Meta fetch skipped:', err);
+    }
+  };
 
   const fetchOfficerWorkQueue = async () => {
     try {
@@ -248,8 +267,82 @@ const OfficerDashboard = () => {
               Logged in as <strong>{user?.name}</strong> ({user?.village_id ? 'Assigned Field Officer' : 'Department Head'})
             </p>
           </div>
+
+          <button
+            onClick={() => setShowProfileModal(true)}
+            className="px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 text-white font-bold text-xs shadow-md border border-white/20 flex items-center gap-2 transition-all shrink-0 backdrop-blur-sm"
+          >
+            <UserCheck className="w-4 h-4 text-amber-300" />
+            <span>View My Profile</span>
+          </button>
         </div>
       </div>
+
+      {/* Field Officer Profile Card Banner */}
+      {user && (
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-black text-xl shadow-inner border border-amber-500/20">
+                {user.name ? user.name.charAt(0) : 'O'}
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-lg font-black text-slate-900 dark:text-white">{user.name}</h2>
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-300/30">
+                    VERIFIED OFFICER
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                  Panchayati Raj Field Staff • ID #{user.id}
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowProfileModal(true)}
+              className="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs flex items-center gap-1.5 transition-all"
+            >
+              <FileText className="w-3.5 h-3.5 text-amber-600" />
+              <span>Full Profile Credentials</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 space-y-0.5">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Assigned Department</span>
+              <div className="font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5 truncate">
+                <Wrench className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                <span className="truncate">{departments.find(d => d.id === user.department_id)?.name || 'General Field Dept'}</span>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 space-y-0.5">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Assigned Jurisdiction</span>
+              <div className="font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5 truncate">
+                <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span className="truncate">{villages.find(v => v.id === user.village_id)?.name || 'All Panchayat Villages'}</span>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 space-y-0.5">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Official Email</span>
+              <div className="font-mono text-slate-800 dark:text-slate-200 truncate flex items-center gap-1.5">
+                <Mail className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                <span className="truncate">{user.email}</span>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 space-y-0.5">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Contact Mobile</span>
+              <div className="font-mono text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                <Phone className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                <span>{user.mobile || '9111111111'}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* "My Performance" Summary Cards (Item 7 Requirement) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -793,6 +886,103 @@ const OfficerDashboard = () => {
                 {modalLoading ? 'Escalating...' : 'Confirm Escalation to Admin'}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Officer Full Profile Credentials Modal */}
+      {showProfileModal && user && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-5 relative overflow-hidden">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
+                  <UserCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-sm text-slate-900 dark:text-white">Field Officer Profile Credentials</h3>
+                  <p className="text-[11px] text-slate-500">Official Panchayati Raj Grievance System Identity</p>
+                </div>
+              </div>
+              <button onClick={() => setShowProfileModal(false)} className="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Officer Identity Card Header */}
+            <div className="bg-gradient-to-tr from-amber-600 to-amber-800 rounded-2xl p-5 text-white shadow-md relative overflow-hidden space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-white/20 uppercase tracking-wider text-white border border-white/30">
+                  STAFF ID #{user.id}
+                </span>
+                <span className="text-[11px] font-bold text-amber-200">State of Andhra Pradesh</span>
+              </div>
+
+              <div>
+                <h4 className="text-xl font-black tracking-tight">{user.name}</h4>
+                <p className="text-xs text-amber-100 mt-0.5">Assigned Field Officer • GramSetu E-Governance</p>
+              </div>
+            </div>
+
+            {/* Profile Grid Details */}
+            <div className="space-y-3 text-xs">
+              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <Wrench className="w-4 h-4 text-indigo-600 shrink-0" />
+                  <span className="text-slate-500 font-medium">Department</span>
+                </div>
+                <span className="font-extrabold text-slate-900 dark:text-white">
+                  {departments.find(d => d.id === user.department_id)?.name || 'General Field Dept'}
+                </span>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <MapPin className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span className="text-slate-500 font-medium">Assigned Village</span>
+                </div>
+                <span className="font-extrabold text-slate-900 dark:text-white">
+                  {villages.find(v => v.id === user.village_id)?.name || 'All Panchayat Villages'}
+                </span>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <Mail className="w-4 h-4 text-blue-600 shrink-0" />
+                  <span className="text-slate-500 font-medium">Official Email</span>
+                </div>
+                <span className="font-mono font-bold text-slate-900 dark:text-white">{user.email}</span>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <Phone className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span className="text-slate-500 font-medium">Mobile Contact</span>
+                </div>
+                <span className="font-mono font-bold text-slate-900 dark:text-white">{user.mobile || '9111111111'}</span>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <Calendar className="w-4 h-4 text-purple-600 shrink-0" />
+                  <span className="text-slate-500 font-medium">Account Status</span>
+                </div>
+                <span className="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                  <CheckCircle className="w-3.5 h-3.5" /> Active Field Queue
+                </span>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <button
+                onClick={() => setShowProfileModal(false)}
+                className="w-full py-3 rounded-xl bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 text-white font-bold text-xs shadow-md transition-all"
+              >
+                Close Profile Credentials
+              </button>
+            </div>
           </div>
         </div>
       )}
