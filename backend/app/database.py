@@ -7,11 +7,14 @@ db_url = settings.get_database_url
 if "sqlite" in db_url:
     engine = create_engine(db_url, connect_args={"check_same_thread": False})
 else:
+    # PostgreSQL configuration for Cloud / Render deployment
     engine = create_engine(
         db_url,
         pool_pre_ping=True,
-        pool_size=5,
-        max_overflow=10
+        pool_size=10,
+        max_overflow=20,
+        pool_recycle=300,
+        pool_timeout=30
     )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
