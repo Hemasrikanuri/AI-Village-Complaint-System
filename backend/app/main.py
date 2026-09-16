@@ -14,15 +14,14 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS Middleware
-origins = ["*"]
-
+# CORS Middleware - Permissive for deployment
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
+    allow_origin_regex=".*",
 )
 
 # Static file serving for complaint photo uploads

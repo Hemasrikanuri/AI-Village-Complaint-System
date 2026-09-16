@@ -18,7 +18,12 @@ def seed_database():
     try:
         # Check if already seeded
         if db.query(User).filter(User.email == "admin@gramsetu.in").first():
-            print("Database already seeded. Skipping seed execution.")
+            print("Database already seeded. Ensuring expanded officer roster...")
+            try:
+                from sync_officers import sync_expanded_officers
+                sync_expanded_officers()
+            except Exception as e:
+                print(f"Officer sync notice: {e}")
             return
 
         print("Seeding database with initial production demo data...")
