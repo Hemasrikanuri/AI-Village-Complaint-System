@@ -204,6 +204,22 @@ const FALLBACK_VILLAGES = [
     }
   };
 
+  const handleConfigureBackendUrl = () => {
+    const current = localStorage.getItem('GRAMSETU_BACKEND_URL') || '';
+    const input = window.prompt(
+      "Enter your backend server URL from Render (e.g., https://gramsetu-backend.onrender.com):",
+      current
+    );
+    if (input !== null) {
+      if (input.trim() === '') {
+        localStorage.removeItem('GRAMSETU_BACKEND_URL');
+      } else {
+        localStorage.setItem('GRAMSETU_BACKEND_URL', input.trim());
+      }
+      window.location.reload();
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-auth-pattern relative overflow-hidden py-12">
       
@@ -234,9 +250,23 @@ const FALLBACK_VILLAGES = [
         </div>
 
         {error && (
-          <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-700 dark:text-rose-300 text-xs font-semibold flex items-center gap-2 animate-shake">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{error}</span>
+          <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-700 dark:text-rose-300 text-xs font-semibold space-y-2 animate-shake">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{error}</span>
+            </div>
+            {(error.includes('Network Error') || error.includes('connection') || error.includes('failed')) && (
+              <div className="pt-2 border-t border-rose-500/20 text-[11px] flex items-center justify-between">
+                <span>Backend URL incorrect or server waking up?</span>
+                <button
+                  type="button"
+                  onClick={handleConfigureBackendUrl}
+                  className="px-2.5 py-1 rounded-lg bg-rose-600 text-white font-bold hover:bg-rose-700 transition-all text-[10px]"
+                >
+                  ⚙️ Set Backend URL
+                </button>
+              </div>
+            )}
           </div>
         )}
 
