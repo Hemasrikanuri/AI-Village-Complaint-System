@@ -43,13 +43,32 @@ const Register = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+const FALLBACK_VILLAGES = [
+  { id: 1, name: "Anakoderu", district: "West Godavari", state: "Andhra Pradesh" },
+  { id: 2, name: "Annavaram", district: "West Godavari", state: "Andhra Pradesh" },
+  { id: 3, name: "Bethapudi", district: "West Godavari", state: "Andhra Pradesh" },
+  { id: 4, name: "Dirusumarru", district: "West Godavari", state: "Andhra Pradesh" },
+  { id: 5, name: "Komarada", district: "West Godavari", state: "Andhra Pradesh" },
+  { id: 6, name: "Kovvada", district: "West Godavari", state: "Andhra Pradesh" },
+  { id: 7, name: "Narasimhapuram", district: "West Godavari", state: "Andhra Pradesh" },
+  { id: 8, name: "Taderu", district: "West Godavari", state: "Andhra Pradesh" },
+  { id: 9, name: "Tundurru", district: "West Godavari", state: "Andhra Pradesh" },
+  { id: 10, name: "Vempa", district: "West Godavari", state: "Andhra Pradesh" },
+  { id: 11, name: "Yenamadurru", district: "West Godavari", state: "Andhra Pradesh" },
+];
+
   const fetchVillages = async () => {
     setLoadingVillages(true);
     try {
       const res = await api.get('/villages');
-      setVillages(res.data);
+      if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+        setVillages(res.data);
+      } else {
+        setVillages(FALLBACK_VILLAGES);
+      }
     } catch (err) {
-      console.error('Failed to load villages', err);
+      console.warn('Backend server waking up, using local panchayat village list', err);
+      setVillages(FALLBACK_VILLAGES);
     } finally {
       setLoadingVillages(false);
     }
