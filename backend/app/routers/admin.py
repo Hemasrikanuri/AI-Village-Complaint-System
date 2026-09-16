@@ -217,3 +217,12 @@ def create_user_by_admin(user_in: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(user)
     return user
+
+@router.post("/users/seed-officers")
+def seed_missing_officers_endpoint(db: Session = Depends(get_db)):
+    """Auto-provisions field officers across all Panchayati Raj departments and villages."""
+    from sync_officers import sync_expanded_officers
+    sync_expanded_officers()
+    total = db.query(User).filter(User.role == UserRole.OFFICER).count()
+    return {"message": "Field officers synchronized successfully", "total_officers": total}
+

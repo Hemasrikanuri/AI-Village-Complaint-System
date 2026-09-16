@@ -48,19 +48,26 @@ npm run dev
 
 ## 🔑 Demo Login Credentials
 
-The system comes pre-seeded with realistic test data across 11 West Godavari Panchayats:
+The system comes pre-seeded with realistic test data across 11 West Godavari Panchayats (34 Field Officers total):
 
-| Role | Email | Password | Details & Village |
+| Role | Email | Password | Department & Assigned Village |
 | :--- | :--- | :--- | :--- |
 | **Panchayat Admin** | `admin@gramsetu.in` | `admin123` | Sarpanch & Executive Admin |
 | **Citizen (Vempa)** | `citizen1@gramsetu.in` | `citizen123` | Ramesh Chandra (Vempa Village) |
-| **Citizen (Anakoderu)** | `citizen2@gramsetu.in` | `citizen23` | Laxmi Devi (Anakoderu Village) |
+| **Citizen (Anakoderu)** | `citizen2@gramsetu.in` | `citizen123` | Laxmi Devi (Anakoderu Village) |
 | **Water Officer A** | `officer.water1@gramsetu.in` | `officer123` | Water Dept, Vempa |
-| **Water Officer B** | `officer.water2@gramsetu.in` | `officer123` | Water Dept, Vempa (Load-Balanced Next) |
+| **Water Officer B** | `officer.water2@gramsetu.in` | `officer123` | Water Dept, Vempa (Load-Balanced) |
+| **Water Officer C** | `officer.water3@gramsetu.in` | `officer123` | Water Dept, Annavaram |
 | **Electricity Officer A** | `officer.elec1@gramsetu.in` | `officer123` | Electricity Dept, Anakoderu |
-| **Electricity Officer B** | `officer.elec2@gramsetu.in` | `officer23` | Electricity Dept, Anakoderu |
-| **Roads Officer** | `officer.roads1@gramsetu.in` | `officer123` | PWD / Roads Dept, Bethapudi |
-| **Sanitation Officer** | `officer.sanitation1@gramsetu.in` | `officer123` | Sanitation Dept, Vempa |
+| **Electricity Officer C** | `officer.elec3@gramsetu.in` | `officer123` | Electricity Dept, Kovvada |
+| **Roads Officer A** | `officer.roads1@gramsetu.in` | `officer123` | PWD / Roads Dept, Bethapudi |
+| **Sanitation Officer A** | `officer.sanitation1@gramsetu.in` | `officer123` | Sanitation Dept, Vempa |
+| **Health Officer A** | `officer.health1@gramsetu.in` | `officer123` | Health Dept, Kovvada |
+| **Agriculture Officer A** | `officer.agri1@gramsetu.in` | `officer123` | Agriculture Dept, Dirusumarru |
+| **Education Officer A** | `officer.edu1@gramsetu.in` | `officer123` | Education & Anganwadi Dept, Komarada |
+| **Veterinary Officer A** | `officer.vet1@gramsetu.in` | `officer123` | Veterinary Dept, Taderu |
+| **PDS Officer A** | `officer.pds1@gramsetu.in` | `officer123` | PDS & Pension Dept, Tundurru |
+| **Environment Officer A** | `officer.env1@gramsetu.in` | `officer123` | Environment Dept, Yenamadurru |
 
 ---
 

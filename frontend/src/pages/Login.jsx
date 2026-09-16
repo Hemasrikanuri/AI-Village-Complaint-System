@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Lock, Mail, AlertCircle, ArrowRight, User, Wrench, Shield, ArrowLeft } from 'lucide-react';
+import { Lock, Mail, AlertCircle, ArrowRight, User, Wrench, Shield, ArrowLeft, CheckCircle2 } from 'lucide-react';
 
 const Login = () => {
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const targetRole = searchParams.get('role')?.toUpperCase() || '';
 
   const [activeRole, setActiveRole] = useState(targetRole || 'CITIZEN');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(location.state?.registeredEmail || '');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState(location.state?.successMsg || '');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -39,6 +41,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccessMsg('');
     setLoading(true);
     try {
       const user = await login(email, password);
@@ -135,6 +138,13 @@ const Login = () => {
           <div className={`p-3 rounded-2xl border ${roleInfo.bg} flex items-center justify-center gap-2 text-xs font-black ${roleInfo.color}`}>
             <roleInfo.icon className="w-4 h-4" />
             <span>{roleInfo.label}</span>
+          </div>
+        )}
+
+        {successMsg && (
+          <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-semibold flex items-center gap-2 animate-fadeIn">
+            <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+            <span>{successMsg}</span>
           </div>
         )}
 
