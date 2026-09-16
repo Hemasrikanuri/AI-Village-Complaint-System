@@ -1,19 +1,34 @@
 import axios from 'axios';
 
-let rawBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+// Smart resolution for API Base URL across Local Dev, Docker, and Render Cloud Deployments
+const getApiBaseUrl = () => {
+  let envUrl = import.meta.env.VITE_API_BASE_URL;
 
-if (rawBaseUrl && !rawBaseUrl.startsWith('http://') && !rawBaseUrl.startsWith('https://') && !rawBaseUrl.startsWith('/')) {
-  rawBaseUrl = `https://${rawBaseUrl}`;
-}
+  // 1. Explicitly configured environment variable
+  if (envUrl && typeof envUrl === 'string' && envUrl.trim() !== '') {
+    envUrl = envUrl.trim();
+    if (!envUrl.startsWith('http://') && !envUrl.startsWith('https://') && !envUrl.startsWith('/')) {
+      envUrl = `https://${envUrl}`;
+    }
+    envUrl = envUrl.replace(/\/+$/, '');
+    if (!envUrl.endsWith('/api/v1')) {
+      envUrl = `${envUrl}/api/v1`;
+    }
+    return envUrl;
+  }
 
-// Ensure base URL ends with /api/v1
-rawBaseUrl = rawBaseUrl.replace(/\/+$/, '');
-if (!rawBaseUrl.endsWith('/api/v1')) {
-  rawBaseUrl = `${rawBaseUrl}/api/v1`;
-}
+  // 2. Dynamic Auto-detection for Render Deployment (e.g., gramsetu-frontend-xxxx.onrender.com -> gramsetu-backend-xxxx.onrender.com)
+  if (typeof window !== 'undefined' && window.location && window.location.hostname.includes('.onrender.com')) {
+    const backendHost = window.location.hostname.replace('frontend', 'backend');
+    return `https://${backendHost}/api/v1`;
+  }
+
+  // 3. Default fallback for local dev proxy
+  return '/api/v1';
+};
 
 const api = axios.create({
-  baseURL: rawBaseUrl,
+  baseURL: getApiBaseUrl(),
 });
 
 // Inject JWT token into requests automatically
