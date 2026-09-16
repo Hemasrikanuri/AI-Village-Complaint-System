@@ -96,8 +96,11 @@ const NewComplaint = () => {
         setLocation({ lat, lng });
 
         try {
-          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`, {
-            headers: { 'User-Agent': 'GramSetu-App/1.0' }
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=en`, {
+            headers: {
+              'User-Agent': 'GramSetu-App/1.0',
+              'Accept-Language': 'en-US,en;q=0.9'
+            }
           });
           const data = await res.json();
           if (data && data.display_name) {
